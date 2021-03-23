@@ -25,7 +25,7 @@ Open `PS4_Cheater.sln` with Visual Studio and build.
   - Need both for the speedfix.
 - Included pre-compiled `ps4debug` binaries are built from:
   - 5.05 - https://github.com/jogolden/ps4debug.git @ b446dced06009705c6f8d70e79113637d1690210
-  - 6.72 - https://github.com/GiantPluto/ps4debug.git @ 0cc311cd1ff62e1020657b7f5715b57ba18a28a3
+  - 6.72 - https://github.com/jogolden/ps4debug.git @ b446dced06009705c6f8d70e79113637d1690210 (with 6.72 offsets)
   - 7.02 - https://github.com/ChendoChap/ps4debug.git @ 7c114ba1b8fe2d5bbdad0079dec442deff10c4e0
   - 7.55 - https://github.com/Joonie86/ps4debug.git @ 616a083250308b93fcb051d6782daba8520c970e
 
