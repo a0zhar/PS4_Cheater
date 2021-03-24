@@ -39,3 +39,8 @@ Open `PS4_Cheater.sln` with Visual Studio and build.
 Discord chat site: https://discord.gg/PwBwUKf.
 Please join us!
 
+---
+
+If you like my builds or have feature requests. Please support me.
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/X8X741UC0)
