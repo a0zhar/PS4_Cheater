@@ -10,6 +10,7 @@ Supported Firmware: 5.05, 6.72, 7.02, 7.55.
 
 ### Notable new features (v1.5.0 onwards):
   - Ported from jkpatch to ps4debug.
+  - Support for 7.02 and 7.55.
   - Console scanner which does the scanning on the ps4 console.
   - Firmware agnostic ps4debug payload
     - One payload for all firmware (5.05, 6.72, 7.02, 7.55)
