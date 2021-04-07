@@ -1,3 +1,7 @@
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/X8X741UC0)
+
+If you like my builds, please donate to help fund the development of PS4 Cheater and ps4debug.
+
 # PS4_Cheater & ps4debug
 
 PS4 Cheater is homebrew APP to find game cheat codes, and it is based on [ps4debug](https://github.com/jogolden/ps4debug).
@@ -38,9 +42,3 @@ Performance tips:
 ---
 Discord chat site: https://discord.gg/PwBwUKf.
 Please join us!
-
----
-
-If you like my builds, please support me.
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/X8X741UC0)
