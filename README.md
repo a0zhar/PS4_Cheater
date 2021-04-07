@@ -47,6 +47,16 @@ Apologies, I'm not updating the source code anymore. Too much drama releasing so
     - Uncheck alignment and try again
     - Uncheck filter, refresh and try again
 
+### Recommended setup and usage
+  1. Start PS4
+  2. Wait 30s.
+  3. Hen
+  4. ChendoChap's binloader
+  5. Start PS4 Cheater
+  6. Send payload
+  7. Refresh
+  8. Find your cheats.
+
 ### Upcoming release: (So you can see what I am working on)
   - @batchcode cheat support
   - Added support for 5.07.
