@@ -11,7 +11,7 @@ Notable features:
   - Multi-threaded scanning
   - Auto-pause function
 
-I will be regularly updating the release pages with new releases with Changelog: https://github.com/ctn123/PS4_Cheater/releases
+I will be regularly updating the release pages with new releases with Changelog: https://github.com/ctn123/PS4_Cheater/releases.
 Apologies, I'm not updating the source code anymore. Too much drama releasing source code, so binaries only at this point.
 
 ## Acknowledgements & Thanks!
