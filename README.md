@@ -8,10 +8,12 @@ PS4 Cheater is homebrew APP to find game cheat codes, and it is based on [ps4deb
 
 Supported Firmware: 5.05, 6.72, 7.02, 7.55.
 
-### Notable features:
+### Notable new features (v1.5.0 onwards):
+  - Ported from jkpatch to ps4debug.
   - Console scanner which does the scanning on the ps4 console.
   - Firmware agnostic ps4debug payload
     - One payload for all firmware (5.05, 6.72, 7.02, 7.55)
+    - No longer required to select firmware from the drop down.
   - Performance increase over previous versions.
   - Multi-threaded scanning
   - Auto-pause function
