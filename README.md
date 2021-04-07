@@ -35,6 +35,18 @@ Apologies, I'm not updating the source code anymore. Too much drama releasing so
     - Try unchecking Alignment
     - Try unchecking Filter
 
+### Troubleshooting:
+  - Trouble connecting?
+    - Try port 9020 / 9021, depends on your bin loader.
+    - Send the payload with PS4 Cheater with the included embedded payload.
+  - Auto-pause causing the game to drop back to xmb or experience a crash/kp?
+    - Disable auto-pause - Game is not compatible with this feature
+  - Pause/Resume buttons causing the game to drop back to xmb or experience a crash/kp?
+    - Don't use pause/resume - Game is not compatible with this feature
+  - Can't find the value you are looking for?
+    - Uncheck alignment and try again
+    - Uncheck filter, refresh and try again
+
 ### Upcoming release: (So you can see what I am working on)
   - @batchcode cheat support
   - Added support for 5.07.
