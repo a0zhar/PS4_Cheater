@@ -8,7 +8,7 @@ PS4 Cheater is homebrew APP to find game cheat codes, and it is based on [ps4deb
 
 Supported Firmware: 5.05, 6.72, 7.02, 7.55.
 
-Notable features:
+### Notable features:
   - Console scanner which does the scanning on the ps4 console.
   - Firmware agnostic ps4debug payload
     - One payload for all firmware (5.05, 6.72, 7.02, 7.55)
@@ -19,7 +19,7 @@ Notable features:
 I will be regularly updating the release pages with new releases with Changelog: https://github.com/ctn123/PS4_Cheater/releases.
 Apologies, I'm not updating the source code anymore. Too much drama releasing source code, so binaries only at this point.
 
-Performance tips:
+### Performance tips:
   - Console scanner
     - Fast but not always faster than the non-console scanner.
   - auto-pause enables scans to happen faster, for games that support it.
@@ -31,6 +31,14 @@ Performance tips:
   - If you can't find the value you are looking for:
     - Try unchecking Alignment
     - Try unchecking Filter
+
+### Upcoming release: (So you can see what I am working on)
+  - @batchcode cheat support
+  - Added support for 5.07.
+  - Fixed missing offset for 7.50 and 7.51
+  - Improvement connection reliability.
+  - Bug fixes.
+  - Preparing a public release of the firmware agnostic ps4debug
 
 ## Acknowledgements & Thanks!
 
