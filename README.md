@@ -4,23 +4,26 @@ If you like my builds, please donate to help fund the development of PS4 Cheater
 
 # PS4_Cheater & ps4debug
 
-PS4 Cheater is homebrew APP to find game cheat codes, and it is based on [ps4debug](https://github.com/jogolden/ps4debug).
+PS4 Cheater is a homebrew application to find game cheat codes. It is based on [ps4debug](https://github.com/jogolden/ps4debug).
 
-Supported Firmware: 5.05, 6.72, 7.02, 7.55.
+Supported Firmware: 5.0X, 6.72, 7.02, 7.5X.
+
+### Latest version: 1.5.4.1 rev2
+Please find all new releases (with Changelog) here: https://github.com/ctn123/PS4_Cheater/releases.
+
+Public version of Unified ps4debug.bin and libdebug.dll are also on the releases page.
+
+Note: Closed source from 1.5.3 onwards.
 
 ### Notable new features (v1.5.0 onwards):
-  - Ported from jkpatch to ps4debug.
-  - Support for 7.02 and 7.55.
+  - Ported from jkpatch to ps4debug (new supports for 7.02 and 7.5X)
+  - Performance that significantly exceeds the old PS4 Cheater (jkpatch) versions 1.4.8 and below.
   - Console scanner which does the scanning on the ps4 console.
   - Firmware agnostic ps4debug payload
-    - One payload for all firmware (5.05, 6.72, 7.02, 7.55)
+    - One payload for all firmware (5.0X, 6.72, 7.02, 7.5X)
     - No longer required to select firmware from the drop down.
-  - Performance increase over previous versions.
   - Multi-threaded scanning
   - Auto-pause function
-
-I will be regularly updating the release pages with new releases with Changelog: https://github.com/ctn123/PS4_Cheater/releases.
-Apologies, I'm not updating the source code anymore. Too much drama releasing source code, so binaries only at this point.
 
 ### Performance tips:
   - Console scanner
@@ -58,12 +61,9 @@ Apologies, I'm not updating the source code anymore. Too much drama releasing so
   8. Find your cheats.
 
 ### Upcoming release: (So you can see what I am working on)
-  - @batchcode cheat support
-  - Added support for 5.07.
-  - Fixed missing offset for 7.50 and 7.51
-  - Improvement connection reliability.
-  - Bug fixes.
-  - Preparing a public release of the firmware agnostic ps4debug
+  - Re-enable "live-cheats" with a better implementation.
+  - Save/undo scan feature
+  - 
 
 ## Acknowledgements & Thanks!
 
