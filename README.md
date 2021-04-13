@@ -6,12 +6,11 @@ If you like my builds, please donate to help fund the development of PS4 Cheater
 
 PS4 Cheater is a homebrew application to find game cheat codes. It is based on [ps4debug](https://github.com/jogolden/ps4debug).
 
-Supported Firmware: 5.0X, 6.72, 7.02, 7.5X.
+### Supported Firmware: 5.0X, 6.72, 7.02, 7.5X.
 
 ### Latest version: 1.5.4.1 rev2
-Please find all new releases (with Changelog) here: https://github.com/ctn123/PS4_Cheater/releases.
-
-Public version of Unified ps4debug.bin and libdebug.dll are also on the releases page.
+  - Please find all new releases (with Changelog) here: https://github.com/ctn123/PS4_Cheater/releases.
+  - Public version of Unified ps4debug.bin and libdebug.dll are also on the releases page.
 
 Note: Closed source from 1.5.3 onwards.
 
