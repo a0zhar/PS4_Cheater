@@ -61,6 +61,7 @@ Note: Closed source from 1.5.3 onwards.
 
 ### Upcoming release: (So you can see what I am working on)
   - Re-enable "live-cheats" with a better implementation.
+  - Scanning for Signed value types
   - Save/undo scan feature
   - 
 
