@@ -24,6 +24,7 @@ Note: Closed source from 1.5.3 onwards.
     - No longer required to select firmware from the drop down.
   - Multi-threaded scanning
   - Auto-pause function
+  - ps4debug with Rest Mode support (survives through rest mode)
 
 ### Performance tips:
   - Console scanner
