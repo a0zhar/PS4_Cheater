@@ -69,8 +69,8 @@ Note: Closed source from 1.5.3 onwards.
   8. Find your cheats.
 
 ### Upcoming release: (So you can see what I am working on)
-  - 
-  - 
+  - Increase reliability of ps4debug.
+  - Increase performance of ps4debug
 
 ## Acknowledgements & Thanks!
 
