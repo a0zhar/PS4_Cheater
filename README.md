@@ -8,7 +8,7 @@ PS4 Cheater is a homebrew application to find game cheat codes. It is based on [
 
 ### Supported Firmware: 5.0X, 6.72, 7.02, 7.5X.
 
-### Latest version: 1.5.4.3
+### Latest version: 1.5.4.4
   - Please find all new releases (with Changelog) here: https://github.com/ctn123/PS4_Cheater/releases.
   - Public version of Unified ps4debug.bin and libdebug.dll are also on the releases page.
   - This version has ps4debug that survives rest mode (Under testing, please report any bugs)
