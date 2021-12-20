@@ -6,9 +6,9 @@ If you like my builds, please donate to help fund the development of PS4 Cheater
 
 PS4 Cheater is a homebrew application to find game cheat codes. It is based on [ps4debug](https://github.com/jogolden/ps4debug).
 
-### Supported Firmware: 5.0X, 6.72, 7.02, 7.5X.
+### Supported Firmware: 5.0X, 6.72, 7.02, 7.5X, 9.00.
 
-### Latest version: 1.5.4.4
+### Latest version: 1.5.4.6
   - Please find all new releases (with Changelog) here: https://github.com/ctn123/PS4_Cheater/releases.
   - Public version of Unified ps4debug.bin and libdebug.dll are also on the releases page.
   - This version has ps4debug that survives rest mode (Under testing, please report any bugs)
@@ -16,11 +16,11 @@ PS4 Cheater is a homebrew application to find game cheat codes. It is based on [
 Note: Closed source from 1.5.3 onwards.
 
 ### Notable new features (v1.5.0 onwards):
-  - Ported from jkpatch to ps4debug (new supports for 7.02 and 7.5X)
+  - Ported from jkpatch to ps4debug (new supports for 7.02, 7.5X and 9.00)
   - Performance that significantly exceeds the old PS4 Cheater (jkpatch) versions 1.4.8 and below.
   - Console scanner which does the scanning on the ps4 console.
   - Firmware agnostic ps4debug payload
-    - One payload for all firmware (5.0X, 6.72, 7.02, 7.5X)
+    - One payload for all firmware (5.0X, 6.72, 7.02, 7.5X, 9.00)
     - No longer required to select firmware from the drop down.
   - Multi-threaded scanning
   - Auto-pause function
@@ -41,7 +41,7 @@ Note: Closed source from 1.5.3 onwards.
 
 ### Troubleshooting:
   - Trouble connecting?
-    - Try port 9020 / 9021, depends on your bin loader.
+    - Try port 9020 / 9021 / 9090, depends on your bin loader.
     - Send the payload with PS4 Cheater with the included embedded payload.
   - Auto-pause causing the game to drop back to xmb or experience a crash/kp?
     - Disable auto-pause - Game is not compatible with this feature
