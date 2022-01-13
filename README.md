@@ -8,7 +8,7 @@ PS4 Cheater is a homebrew application to find game cheat codes. It is based on [
 
 ### Supported Firmware: 5.0X, 6.72, 7.02, 7.5X, 9.00.
 
-### Latest version: 1.5.4.6
+### Latest version: 1.5.4.7
   - Please find all new releases (with Changelog) here: https://github.com/ctn123/PS4_Cheater/releases.
   - Public version of Unified ps4debug.bin and libdebug.dll are also on the releases page.
   - This version has ps4debug that survives rest mode (Under testing, please report any bugs)
@@ -50,11 +50,13 @@ Note: Closed source from 1.5.3 onwards.
   - Can't find the value you are looking for?
     - Uncheck alignment and try again
     - Uncheck filter, refresh and try again
+  - Found a value but can't added the address with the error "Address is out of range"
+    - The section probably got deallocated/removed.
   - PS4 Cheater doesn't connect after waking from rest mode
     - Restart PS4 Cheater and hit refresh
     - Wait for rev1 :)
   - ps4debug doesn't survive through Rest mode?
-    - Try with GoldHen 1.1, Hen 2.1.3b, Hen 2.1.4
+    - Try with GoldHen 2.0b2, Hen 2.1.3b, Hen 2.1.4
   - PS4 sometimes doesn't wake after a few attempts
     - Known issue with GoldHen 1.1, wait for a fix.
 
