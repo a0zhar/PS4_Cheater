@@ -1,5 +1,5 @@
-﻿namespace PS4_Cheater
-{
+namespace PS4_Cheater {
+
     using libdebug;
     using System;
     using System.Collections.Generic;
@@ -15,8 +15,7 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    public partial class main : Form
-    {
+    public partial class main : Form {
         private ProcessManager processManager = new ProcessManager();
         private MemoryHelper memoryHelper = new MemoryHelper(true, 0);
         private CheatList cheatList = new CheatList();
@@ -95,49 +94,42 @@
             CONSTANT.EXACT_VALUE,
         };
 
-        public main()
-        {
+        public main() {
             this.InitializeComponent();
         }
 
-        private void main_Load(object sender, EventArgs e)
-        {
+        private void main_Load(object sender, EventArgs e) {
             valueTypeList.Items.AddRange(CONSTANT.SEARCH_VALUE_TYPE);
             valueTypeList.SelectedIndex = 2;
 
             string version = Config.getSetting("ps4 version");
             string port = Config.getSetting("port");
             string ip = Config.getSetting("ip");
-            if (version == "7.02")
-            {
-                version_list.SelectedIndex = VERSION_LIST_702;
-                Util.Version = 702;
-            }
-            else if (version == "6.72")
-            {
-                version_list.SelectedIndex = VERSION_LIST_672;
-                Util.Version = 672;
-            }
-            else if (version == "5.05")
-            {
-                version_list.SelectedIndex = VERSION_LIST_505;
-                Util.Version = 505;
-            }
-            else
-            {
-                Util.Version = 702;
-                version_list.SelectedIndex = VERSION_LIST_DEFAULT;
-            }
 
-            if (!string.IsNullOrEmpty(ip))
-            {
-                ip_box.Text = ip;
-            }
+            switch (version) {
+                case "5.05":
+                    version_list.SelectedIndex = VERSION_LIST_505;
+                    Util.Version = 505;
+                    break;
 
-            if (!string.IsNullOrEmpty(port))
-            {
-                port_box.Text = port;
-            }
+                case "6.72":
+                    version_list.SelectedIndex = VERSION_LIST_672;
+                    Util.Version = 672;
+                    break;
+
+                case "7.02":
+                    version_list.SelectedIndex = VERSION_LIST_702;
+                    Util.Version = 702;
+                    break;
+
+                default:
+                    Util.Version = 702;
+                    version_list.SelectedIndex = VERSION_LIST_DEFAULT;
+                    break;
+            };
+
+            if (!string.IsNullOrEmpty(ip)) ip_box.Text = ip;
+            if (!string.IsNullOrEmpty(port)) port_box.Text = port;
 
             this.next_scan_btn.Text = CONSTANT.NEXT_SCAN;
             this.new_scan_btn.Text = CONSTANT.FIRST_SCAN;
@@ -145,123 +137,126 @@
             this.Text += " " + CONSTANT.MAJOR_VERSION + "." + CONSTANT.SECONDARY_VERSION + "." + CONSTANT.THIRD_VERSION;
         }
 
-        private void main_FormClosing(object sender, FormClosingEventArgs e)
-        {
-
+        private void main_FormClosing(object sender, FormClosingEventArgs e) {
             string ip = Config.getSetting("ip");
             string version = "";
-            switch (version_list.SelectedIndex)
-            {
-                case VERSION_LIST_702:
-                    version = "7.02";
-                    break;
-                case VERSION_LIST_672:
-                    version = "6.72";
-                    break;
-                case VERSION_LIST_505:
-                    version = "5.05";
-                    break;
-                default:
-                    break;
-            }
 
-            if (!string.IsNullOrWhiteSpace(version))
-            {
+            // Might re-do this as if-e
+            switch (version_list.SelectedIndex) {
+                case VERSION_LIST_505: version = "5.05"; break;
+                case VERSION_LIST_672: version = "6.72"; break;
+                case VERSION_LIST_702: version = "7.02"; break;
+            };
+
+            if (!string.IsNullOrWhiteSpace(version)) {
                 Config.updateSetting("ps4 version", version);
             }
 
-            if (!string.IsNullOrWhiteSpace(ip_box.Text))
-            {
+            if (!string.IsNullOrWhiteSpace(ip_box.Text)) {
                 Config.updateSetting("ip", ip_box.Text);
             }
 
-            if (!string.IsNullOrWhiteSpace(port_box.Text))
-            {
+            if (!string.IsNullOrWhiteSpace(port_box.Text)) {
                 Config.updateSetting("port", port_box.Text);
             }
 
-            //MemoryHelper.Disconnect();
+            // Why is this Not done?MemoryHelper.Disconnect();
         }
 
-        class WorkerReturn
-        {
+        private class WorkerReturn {
             public List<ListViewItem> ListViewItems { get; set; }
             public bool[] MappedSectionCheckeSet { get; set; }
             public ulong Results { get; set; }
         }
 
-        private void update_result_list_view(BackgroundWorker worker, bool refresh, int start, float percent)
-        {
+        private void update_result_list_view(BackgroundWorker worker, bool refresh, int start, float percent) {
+            // Report the initial progress
             worker.ReportProgress(start);
 
+            // Initialize the list to store the ListViewItem's Objects that will be
+            // created from the Scan Results
             List<ListViewItem> listViewItems = new List<ListViewItem>();
+
+            // Array to check mapped sections?
             bool[] mappedSectionCheckeSet = new bool[processManager.MappedSectionList.Count];
 
+            // Calculate the total result count and initialize the current result count
             ulong totalResultCount = processManager.MappedSectionList.TotalResultCount();
             ulong curResultCount = 0;
+
+            // Get the string representation of the value type?
             string value_type = MemoryHelper.GetStringOfValueType(memoryHelper.ValueType);
 
+            // Define the maximum number of results to process
             const int MAX_RESULTS_NUM = 0x1000;
 
-            for (int idx = 0; idx < processManager.MappedSectionList.Count; ++idx)
-            {
+            // Iterate over each mapped section
+            for (int idx = 0; idx < processManager.MappedSectionList.Count; ++idx) {
                 MappedSection mapped_section = processManager.MappedSectionList[idx];
                 ResultList result_list = mapped_section.ResultList;
-                if (result_list == null)
-                {
-                    continue;
-                }
-                if (!mapped_section.Check)
-                {
-                    continue;
-                }
 
+                // Skip sections that are either null or not checked
+                if (result_list == null || !mapped_section.Check)
+                    continue;
+
+                // Mark if the current mapped section has results
                 mappedSectionCheckeSet[idx] = result_list.Count > 0;
 
-                for (result_list.Begin(); !result_list.End(); result_list.Next())
-                {
+                // Iterate over each result in the result list
+                for (result_list.Begin(); !result_list.End(); result_list.Next()) {
+                    // Stop this for-loop the current result count exceeds or
+                    // is equal to, the maximum allowed
                     if (curResultCount >= MAX_RESULTS_NUM)
-                    {
                         break;
-                    }
 
+                    // Initialize temporary variables for the memory address
+                    // offset and for the memory value
                     uint memory_address_offset = 0;
                     byte[] memory_value = null;
 
                     result_list.Get(ref memory_address_offset, ref memory_value);
 
                     curResultCount++;
-                    ListViewItem lvi = new ListViewItem();
 
-                    lvi.Text = String.Format("{0:X}", memory_address_offset + mapped_section.Start);
-
-                    if (refresh && !worker.CancellationPending)
-                    {
+                    // If refreshing and the background worker operation is not
+                    // canceled, then we update the memory value
+                    if (refresh && !worker.CancellationPending) {
                         memory_value = memoryHelper.GetBytesByType(memory_address_offset + mapped_section.Start);
                         result_list.Set(memory_value);
+
+                        // Report the progress
                         worker.ReportProgress(start + (int)(100.0f * curResultCount / MAX_RESULTS_NUM));
                     }
 
-                    lvi.SubItems.Add(value_type);
-                    lvi.SubItems.Add(memoryHelper.BytesToString(memory_value));
-                    lvi.SubItems.Add(memoryHelper.BytesToHexString(memory_value));
-                    lvi.SubItems.Add(processManager.MappedSectionList.GetSectionName(idx));
+                    // Define a new ListViewItem variable for our scan result item.
+                    // This new item will contain the value's for the listview box
+                    // column's: Address, Type, Value, Hex, Section
+                    ListViewItem lvResultItem = new ListViewItem();
 
-                    listViewItems.Add(lvi);
+                    // Set the listview box column (Address) value to be the memory
+                    // address value in an hexadecimal format
+                    lvResultItem.Text = String.Format("{0:X}", memory_address_offset + mapped_section.Start);
+                    lvResultItem.SubItems.Add(value_type); // Column (Type) value
+                    lvResultItem.SubItems.Add(memoryHelper.BytesToString(memory_value)); // Column (Value) value
+                    lvResultItem.SubItems.Add(memoryHelper.BytesToHexString(memory_value)); // Column (Hex) value
+                    lvResultItem.SubItems.Add(processManager.MappedSectionList.GetSectionName(idx)); // Column (Section) value
+
+                    // Finally add the newly built listview box item
+                    listViewItems.Add(lvResultItem);
                 }
             }
 
+            // Create a WorkerReturn object to store the results
             WorkerReturn workerReturn = new WorkerReturn();
             workerReturn.ListViewItems = listViewItems;
             workerReturn.MappedSectionCheckeSet = mappedSectionCheckeSet;
             workerReturn.Results = totalResultCount;
 
+            // Report the final progress with the worker return object
             worker.ReportProgress(start + (int)(100 * percent), workerReturn);
         }
 
-
-        void setButtons(bool enabled)
-        {
+        private void setButtons(bool enabled) {
             new_scan_btn.Enabled = enabled;
             refresh_btn.Enabled = enabled;
             next_scan_btn.Enabled = enabled;
@@ -271,14 +266,10 @@
             compareTypeList.Enabled = enabled;
         }
 
-        private void new_scan_btn_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (new_scan_btn.Text == CONSTANT.FIRST_SCAN)
-                {
-                    if (MessageBox.Show("search size:" + (processManager.MappedSectionList.TotalMemorySize / 1024).ToString() + "KB") != DialogResult.OK)
-                    {
+        private void new_scan_btn_Click(object sender, EventArgs e) {
+            try {
+                if (new_scan_btn.Text == CONSTANT.FIRST_SCAN) {
+                    if (MessageBox.Show("search size:" + (processManager.MappedSectionList.TotalMemorySize / 1024).ToString() + "KB") != DialogResult.OK) {
                         return;
                     }
 
@@ -295,8 +286,7 @@
 
                     new_scan_btn.Text = CONSTANT.STOP;
                 }
-                else if (new_scan_btn.Text == CONSTANT.NEW_SCAN)
-                {
+                else if (new_scan_btn.Text == CONSTANT.NEW_SCAN) {
                     valueTypeList.Enabled = true;
                     alignment_box.Enabled = true;
                     //section_list_box.Enabled = true;
@@ -308,93 +298,74 @@
                     processManager.MappedSectionList.ClearResultList();
                     InitCompareTypeListOfFirstScan();
                 }
-                else if (new_scan_btn.Text == CONSTANT.STOP)
-                {
+                else if (new_scan_btn.Text == CONSTANT.STOP) {
                     new_scan_worker.CancelAsync();
                 }
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 MessageBox.Show(exception.Message);
             }
         }
 
-        private void refresh_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (refresh_btn.Text == "Refresh")
-                {
+        private void refresh_Click(object sender, EventArgs e) {
+            try {
+                if (refresh_btn.Text == "Refresh") {
                     setButtons(false);
                     refresh_btn.Enabled = true;
                     refresh_btn.Text = CONSTANT.STOP;
                     update_result_list_worker.RunWorkerAsync();
                 }
-                else if (refresh_btn.Text == CONSTANT.STOP)
-                {
+                else if (refresh_btn.Text == CONSTANT.STOP) {
                     update_result_list_worker.CancelAsync();
                 }
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 MessageBox.Show(exception.Message);
             }
         }
 
-        private void next_scan_btn_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (next_scan_btn.Text == "Next Scan")
-                {
+        private void next_scan_btn_Click(object sender, EventArgs e) {
+            try {
+                if (next_scan_btn.Text == "Next Scan") {
                     memoryHelper.InitNextScanMemoryHandler((string)compareTypeList.SelectedItem);
                     setButtons(false);
                     next_scan_btn.Enabled = true;
                     next_scan_btn.Text = CONSTANT.STOP;
                     next_scan_worker.RunWorkerAsync();
                 }
-                else if (next_scan_btn.Text == CONSTANT.STOP)
-                {
+                else if (next_scan_btn.Text == CONSTANT.STOP) {
                     next_scan_worker.CancelAsync();
                 }
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 MessageBox.Show(exception.Message);
             }
         }
 
-        private void set_section_list_box(bool check)
-        {
-            for (int i = 0; i < section_list_box.Items.Count; ++i)
-            {
+        private void set_section_list_box(bool check) {
+            for (int i = 0; i < section_list_box.Items.Count; ++i) {
                 section_list_box.SetItemChecked(i, check);
             }
         }
 
-        private void select_all_check_box_Click(object sender, EventArgs e)
-        {
+        private void select_all_check_box_Click(object sender, EventArgs e) {
             bool check = select_all.Checked;
             set_section_list_box(check);
         }
 
-        private void update_result_list_view_ui(WorkerReturn ret)
-        {
+        private void update_result_list_view_ui(WorkerReturn ret) {
             result_list_view.Items.Clear();
             result_list_view.BeginUpdate();
             result_list_view.Items.AddRange(ret.ListViewItems.ToArray());
             result_list_view.EndUpdate();
 
-            for (int i = 0; i < section_list_box.Items.Count; ++i)
-            {
+            for (int i = 0; i < section_list_box.Items.Count; ++i) {
                 section_list_box.SetItemChecked(i, ret.MappedSectionCheckeSet[i]);
             }
             msg.Text = ret.Results + " results";
         }
 
-
-        private void scan_worker_DoWorker(object sender, DoWorkEventArgs e, bool isFirstScan)
-        {
+        private void scan_worker_DoWorker(object sender, DoWorkEventArgs e, bool isFirstScan) {
             BackgroundWorker worker = (BackgroundWorker)sender;
 
             string value_0 = value_box.Text;
@@ -417,12 +388,10 @@
             producer.Start();
 
             Thread consumer = null;
-            if (isFirstScan)
-            {
+            if (isFirstScan) {
                 consumer = new Thread(comparer_thread.ResultListOfNewScan);
             }
-            else
-            {
+            else {
                 consumer = new Thread(comparer_thread.ResultListOfNextScan);
             }
             consumer.Start();
@@ -436,8 +405,7 @@
             update_result_list_view(worker, false, 80, 0.2f);
         }
 
-        private void next_scan_worker_DoWork(object sender, DoWorkEventArgs e)
-        {
+        private void next_scan_worker_DoWork(object sender, DoWorkEventArgs e) {
             processed_memory_len = 0;
             ulong total_memory_size = processManager.MappedSectionList.TotalMemorySize + 1;
             string value_0 = value_box.Text;
@@ -461,10 +429,8 @@
             update_result_list_view(next_scan_worker, false, 80, 0.2f);
         }
 
-        void next_scan_thread(string value_0, string value_1, int thread_id, int num_threads, ref long processed_memory_len, ulong total_memory_size)
-        {
-            for (int section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx)
-            {
+        private void next_scan_thread(string value_0, string value_1, int thread_id, int num_threads, ref long processed_memory_len, ulong total_memory_size) {
+            for (int section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx) {
                 // Split work up between threads.
                 if (section_idx % num_threads != thread_id) continue;
 
@@ -476,8 +442,7 @@
             }
         }
 
-        private void new_scan_worker_DoWork(object sender, DoWorkEventArgs e)
-        {
+        private void new_scan_worker_DoWork(object sender, DoWorkEventArgs e) {
             processed_memory_len = 0;
             ulong total_memory_size = processManager.MappedSectionList.TotalMemorySize + 1;
             string value_0 = value_box.Text;
@@ -500,10 +465,8 @@
             update_result_list_view(new_scan_worker, false, 80, 0.2f);
         }
 
-        void new_scan_thread(string value_0, string value_1, int thread_id, int num_threads, ref long processed_memory_len, ulong total_memory_size)
-        {
-            for (int section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx)
-            {
+        private void new_scan_thread(string value_0, string value_1, int thread_id, int num_threads, ref long processed_memory_len, ulong total_memory_size) {
+            for (int section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx) {
                 // Split work up between threads.
                 if (section_idx % num_threads != thread_id) continue;
 
@@ -515,27 +478,21 @@
             }
         }
 
-        private void update_result_list_worker_DoWork(object sender, DoWorkEventArgs e)
-        {
+        private void update_result_list_worker_DoWork(object sender, DoWorkEventArgs e) {
             update_result_list_view(update_result_list_worker, true, 0, 1.0f);
         }
 
-        private void new_scan_worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            if (e.ProgressPercentage == 0)
-            {
+        private void new_scan_worker_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            if (e.ProgressPercentage == 0) {
                 msg.Text = "Peeking memory...";
             }
 
-            if (e.ProgressPercentage == 80)
-            {
+            if (e.ProgressPercentage == 80) {
                 msg.Text = "Analysing memory...";
             }
 
-            if (e.ProgressPercentage == 100)
-            {
-                if (e.UserState is WorkerReturn)
-                {
+            if (e.ProgressPercentage == 100) {
+                if (e.UserState is WorkerReturn) {
                     update_result_list_view_ui((WorkerReturn)e.UserState);
                 }
             }
@@ -543,25 +500,20 @@
             progressBar.Value = e.ProgressPercentage;
         }
 
-        private void update_result_list_worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            if (e.ProgressPercentage == 0)
-            {
+        private void update_result_list_worker_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            if (e.ProgressPercentage == 0) {
                 msg.Text = "Processing memory...";
             }
 
-            if (e.ProgressPercentage == 100 && e.UserState is WorkerReturn)
-            {
+            if (e.ProgressPercentage == 100 && e.UserState is WorkerReturn) {
                 update_result_list_view_ui((WorkerReturn)e.UserState);
             }
 
             progressBar.Value = e.ProgressPercentage;
         }
 
-        private void dump_dialog(int sectionID)
-        {
-            if (sectionID >= 0)
-            {
+        private void dump_dialog(int sectionID) {
+            if (sectionID >= 0) {
                 MappedSection section = processManager.MappedSectionList[sectionID];
 
                 save_file_dialog.Filter = "Binary files (*.bin)|*.bin|All files (*.*)|*.*";
@@ -569,8 +521,7 @@
                 save_file_dialog.RestoreDirectory = true;
                 save_file_dialog.FileName = (string)section_list_box.Items[section_list_box.SelectedIndex];
 
-                if (save_file_dialog.ShowDialog() == DialogResult.OK)
-                {
+                if (save_file_dialog.ShowDialog() == DialogResult.OK) {
                     byte[] buffer = memoryHelper.ReadMemory(section.Start, (int)section.Length);
 
                     FileStream myStream = new FileStream(save_file_dialog.FileName, FileMode.OpenOrCreate);
@@ -580,18 +531,15 @@
             }
         }
 
-        private void result_list_view_hex_item_Click(object sender, EventArgs e)
-        {
-            if (result_list_view.SelectedItems.Count == 1)
-            {
+        private void result_list_view_hex_item_Click(object sender, EventArgs e) {
+            if (result_list_view.SelectedItems.Count == 1) {
                 ListView.SelectedListViewItemCollection items = result_list_view.SelectedItems;
 
                 ulong address = ulong.Parse(result_list_view.SelectedItems[0].
                     SubItems[RESULT_LIST_ADDRESS].Text, NumberStyles.HexNumber);
                 int sectionID = processManager.MappedSectionList.GetMappedSectionID(address);
 
-                if (sectionID >= 0)
-                {
+                if (sectionID >= 0) {
                     int offset = 0;
 
                     MappedSection section = processManager.MappedSectionList[sectionID];
@@ -603,11 +551,8 @@
             }
         }
 
-
-        private void dump_item_Click(object sender, EventArgs e)
-        {
-            if (result_list_view.SelectedItems.Count == 1)
-            {
+        private void dump_item_Click(object sender, EventArgs e) {
+            if (result_list_view.SelectedItems.Count == 1) {
                 ulong address = ulong.Parse(result_list_view.SelectedItems[0].
                     SubItems[RESULT_LIST_ADDRESS].Text, NumberStyles.HexNumber);
 
@@ -617,36 +562,30 @@
             }
         }
 
-        private void sectionView_Click(object sender, EventArgs e)
-        {
+        private void sectionView_Click(object sender, EventArgs e) {
             int sectionID = -1;
             int offset = 0;
 
             sectionID = section_list_box.SelectedIndex;
 
-            if (sectionID >= 0)
-            {
+            if (sectionID >= 0) {
                 MappedSection section = processManager.MappedSectionList[sectionID];
                 HexEditor hexEdit = new HexEditor(memoryHelper, offset, section);
                 hexEdit.Show(this);
             }
         }
 
-        private void sectionDump_Click(object sender, EventArgs e)
-        {
-            if (section_list_box.SelectedIndex >= 0)
-            {
+        private void sectionDump_Click(object sender, EventArgs e) {
+            if (section_list_box.SelectedIndex >= 0) {
                 dump_dialog(section_list_box.SelectedIndex);
             }
         }
 
-        private void section_list_box_ItemCheck(object sender, ItemCheckEventArgs e)
-        {
+        private void section_list_box_ItemCheck(object sender, ItemCheckEventArgs e) {
             processManager.MappedSectionList.SectionCheck(e.Index, e.NewValue == CheckState.Checked);
         }
 
-        void add_new_row_to_cheat_list_view(Cheat cheat)
-        {
+        private void add_new_row_to_cheat_list_view(Cheat cheat) {
             int index = this.cheat_list_view.Rows.Add();
 
             DataGridViewRow cheat_list_view_item = cheat_list_view.Rows[index];
@@ -661,20 +600,16 @@
             cheat_list_view_item.Cells[CHEAT_LIST_DESC].Value = cheat.Description;
         }
 
-        void new_data_cheat(ulong address, string type, string data, bool lock_, string description)
-        {
-            try
-            {
+        private void CreateNewDataCheat(ulong address, string type, string data, bool lock_, string description) {
+            try {
                 int sectionID = processManager.MappedSectionList.GetMappedSectionID(address);
 
-                if (sectionID == -1)
-                {
+                if (sectionID == -1) {
                     MessageBox.Show("Address is out of range!");
                     return;
                 }
 
-                if (cheatList.Exist(address))
-                {
+                if (cheatList.Exist(address)) {
                     return;
                 }
 
@@ -687,26 +622,21 @@
                 add_new_row_to_cheat_list_view(dataCheat);
                 cheatList.Add(dataCheat);
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 MessageBox.Show(exception.Message, exception.Source, MessageBoxButtons.OK, MessageBoxIcon.Hand);
             }
         }
 
-        public void new_pointer_cheat(ulong address, List<long> offset_list, string type, string data, bool lock_, string description)
-        {
-            try
-            {
+        public void new_pointer_cheat(ulong address, List<long> offset_list, string type, string data, bool lock_, string description) {
+            try {
                 int sectionID = processManager.MappedSectionList.GetMappedSectionID(address);
 
-                if (sectionID == -1)
-                {
+                if (sectionID == -1) {
                     MessageBox.Show("Address is out of range!");
                     return;
                 }
 
-                if (cheatList.Exist(address))
-                {
+                if (cheatList.Exist(address)) {
                     return;
                 }
 
@@ -716,8 +646,7 @@
                 AddressCheatOperator addressCheatOperator = new AddressCheatOperator(address, processManager);
                 List<OffsetCheatOperator> offsetOperators = new List<OffsetCheatOperator>();
 
-                for (int i = 0; i < offset_list.Count; ++i)
-                {
+                for (int i = 0; i < offset_list.Count; ++i) {
                     OffsetCheatOperator offsetOperator = new OffsetCheatOperator(offset_list[i],
                         ValueType.ULONG_TYPE, processManager);
                     offsetOperators.Add(offsetOperator);
@@ -731,61 +660,54 @@
                 add_new_row_to_cheat_list_view(simplePointerCheat);
                 cheatList.Add(simplePointerCheat);
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 MessageBox.Show(exception.Message, exception.Source, MessageBoxButtons.OK, MessageBoxIcon.Hand);
             }
         }
 
-        private void add_to_cheat_list(ListViewItem item)
-        {
+        private void add_to_cheat_list(ListViewItem item) {
             string address = item.SubItems[RESULT_LIST_ADDRESS].Text;
             string type = item.SubItems[RESULT_LIST_TYPE].Text;
             string value = item.SubItems[RESULT_LIST_VALUE].Text;
             bool lock_ = false;
             string description = "";
 
-            new_data_cheat(ulong.Parse(address, NumberStyles.HexNumber), type, value, lock_, description);
+            CreateNewDataCheat(ulong.Parse(address, NumberStyles.HexNumber), type, value, lock_, description);
         }
 
-        private void result_list_view_DoubleClick(object sender, EventArgs e)
-        {
-            if (result_list_view.SelectedItems.Count == 1)
-            {
+        private void result_list_view_DoubleClick(object sender, EventArgs e) {
+            if (result_list_view.SelectedItems.Count == 1) {
                 ListView.SelectedListViewItemCollection items = result_list_view.SelectedItems;
                 add_to_cheat_list(items[0]);
             }
         }
 
-        private void cheat_list_view_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-        {
+        private void cheat_list_view_CellEndEdit(object sender, DataGridViewCellEventArgs e) {
             DataGridViewRow edited_row = cheat_list_view.Rows[e.RowIndex];
             object edited_col = edited_row.Cells[e.ColumnIndex].Value;
 
-            switch (e.ColumnIndex)
-            {
+            switch (e.ColumnIndex) {
                 case CHEAT_LIST_VALUE:
                     DataCheatOperator dataCheatOperator = (DataCheatOperator)cheatList[e.RowIndex].GetSource();
                     CheatOperator destOperator = cheatList[e.RowIndex].GetDestination();
                     dataCheatOperator.Set((string)edited_col);
                     destOperator.SetRuntime(dataCheatOperator);
                     break;
+
                 case CHEAT_LIST_DESC:
                     cheatList[e.RowIndex].Description = (string)edited_col;
                     break;
             }
         }
 
-        private void cheat_list_view_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
+        private void cheat_list_view_CellClick(object sender, DataGridViewCellEventArgs e) {
             if (e.RowIndex < 0) return;
             if (e.ColumnIndex < 0) return;
 
             DataGridViewRow edited_row = cheat_list_view.Rows[e.RowIndex];
             object edited_col = null;
 
-            switch (e.ColumnIndex)
-            {
+            switch (e.ColumnIndex) {
                 case CHEAT_LIST_ENABLED:
                     cheat_list_view.EndEdit();
                     DataCheatOperator dataCheatOperator = (DataCheatOperator)cheatList[e.RowIndex].GetSource();
@@ -794,9 +716,11 @@
                     dataCheatOperator.Set((string)edited_col);
                     destOperator.SetRuntime(dataCheatOperator);
                     break;
+
                 case CHEAT_LIST_DEL:
                     cheat_list_view.Rows.RemoveAt(e.RowIndex);
                     break;
+
                 case CHEAT_LIST_LOCK:
                     cheat_list_view.EndEdit();
                     edited_col = edited_row.Cells[e.ColumnIndex].Value;
@@ -805,8 +729,7 @@
             }
         }
 
-        private void add_address_btn_Click(object sender, EventArgs e)
-        {
+        private void add_address_btn_Click(object sender, EventArgs e) {
             NewAddress newAddress = new NewAddress(processManager);
             if (newAddress.ShowDialog() != DialogResult.OK)
                 return;
@@ -819,76 +742,61 @@
 
             int sectionID = processManager.MappedSectionList.GetMappedSectionID(address);
 
-            if (sectionID < 0)
-            {
+            if (sectionID < 0) {
                 MessageBox.Show("Invalid Address!!");
                 return;
             }
 
-            if (!newAddress.Pointer)
-            {
-                new_data_cheat(address, value_type, value, lock_, description);
+            if (!newAddress.Pointer) {
+                CreateNewDataCheat(address, value_type, value, lock_, description);
             }
-            else
-            {
+            else {
                 new_pointer_cheat(address, newAddress.OffsetList, value_type, value, lock_, description);
             }
         }
 
-        private void cheat_list_view_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
-        {
-            if (e.RowIndex >= 0)
-            {
+        private void cheat_list_view_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e) {
+            if (e.RowIndex >= 0) {
                 cheatList.RemoveAt(e.RowIndex);
             }
         }
 
-        private void save_address_btn_Click(object sender, EventArgs e)
-        {
+        private void save_address_btn_Click(object sender, EventArgs e) {
             save_file_dialog.Filter = "Cheat files (*.cht)|*.cht";
             save_file_dialog.FilterIndex = 1;
             save_file_dialog.RestoreDirectory = true;
 
-            if (save_file_dialog.ShowDialog() == DialogResult.OK)
-            {
+            if (save_file_dialog.ShowDialog() == DialogResult.OK) {
                 cheatList.SaveFile(save_file_dialog.FileName, (string)processes_comboBox.SelectedItem, processManager);
             }
         }
 
-        private void load_address_btn_Click(object sender, EventArgs e)
-        {
+        private void load_address_btn_Click(object sender, EventArgs e) {
             open_file_dialog.Filter = "Cheat files (*.cht)|*.cht";
             open_file_dialog.FilterIndex = 1;
             open_file_dialog.RestoreDirectory = true;
 
-            if (open_file_dialog.ShowDialog() != DialogResult.OK)
-            {
+            if (open_file_dialog.ShowDialog() != DialogResult.OK) {
                 return;
             }
 
             cheat_list_view.Rows.Clear();
             cheatList.LoadFile(open_file_dialog.FileName, processManager, processes_comboBox);
 
-            for (int i = 0; i < cheatList.Count; ++i)
-            {
+            for (int i = 0; i < cheatList.Count; ++i) {
                 Cheat cheat = cheatList[i];
-                if (cheat.CheatType == CheatType.DATA_TYPE)
-                {
+                if (cheat.CheatType == CheatType.DATA_TYPE) {
                     add_new_row_to_cheat_list_view((DataCheat)cheat);
                 }
-                else if (cheat.CheatType == CheatType.SIMPLE_POINTER_TYPE)
-                {
+                else if (cheat.CheatType == CheatType.SIMPLE_POINTER_TYPE) {
                     add_new_row_to_cheat_list_view((SimplePointerCheat)cheat);
                 }
             }
         }
 
-        private void refresh_cheat_list_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                for (int i = 0; i < cheatList.Count; ++i)
-                {
+        private void refresh_cheat_list_Click(object sender, EventArgs e) {
+            try {
+                for (int i = 0; i < cheatList.Count; ++i) {
                     DataGridViewRow row = cheat_list_view.Rows[i];
 
                     DataCheatOperator dataCheatOperator = (DataCheatOperator)cheatList[i].GetSource();
@@ -897,18 +805,14 @@
                     row.Cells[CHEAT_LIST_VALUE].Value = dataCheatOperator.Display();
                 }
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 MessageBox.Show(exception.Message);
             }
         }
 
-        private void refresh_lock_Tick(object sender, EventArgs e)
-        {
-            for (int i = 0; i < cheatList.Count; ++i)
-            {
-                if (!cheatList[i].Lock)
-                {
+        private void refresh_lock_Tick(object sender, EventArgs e) {
+            for (int i = 0; i < cheatList.Count; ++i) {
+                if (!cheatList[i].Lock) {
                     continue;
                 }
 
@@ -917,10 +821,9 @@
                 destOperator.SetRuntime(dataCheatOperator);
             }
         }
-        private void processes_comboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            try
-            {
+
+        private void processes_comboBox_SelectedIndexChanged(object sender, EventArgs e) {
+            try {
                 section_list_box.Items.Clear();
                 result_list_view.Items.Clear();
                 new_scan_btn.Enabled = true;
@@ -929,8 +832,7 @@
                 section_list_box.Enabled = true;
 
                 ProcessInfo? maybeProcessInfo = processManager.GetProcessInfo(processes_comboBox.Text);
-                if (maybeProcessInfo is null)
-                {
+                if (maybeProcessInfo is null) {
                     msg.Text = "No process information found.";
                     return;
                 }
@@ -938,8 +840,7 @@
 
                 Util.DefaultProcessID = processInfo.pid;
                 ProcessMap processMap = MemoryHelper.GetProcessMaps(processInfo.pid);
-                if (processMap is null)
-                {
+                if (processMap is null) {
                     msg.Text = "No process maps found.";
                     return;
                 }
@@ -947,41 +848,33 @@
                 processManager.MappedSectionList.InitMemorySectionList(processMap);
 
                 section_list_box.BeginUpdate();
-                for (int i = 0; i < processManager.MappedSectionList.Count; ++i)
-                {
+                for (int i = 0; i < processManager.MappedSectionList.Count; ++i) {
                     section_list_box.Items.Add(processManager.MappedSectionList.GetSectionName(i), false);
                 }
                 section_list_box.EndUpdate();
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 MessageBox.Show(exception.Message);
             }
         }
 
-        private void get_processes_btn_Click(object sender, EventArgs e)
-        {
-            try
-            {
-
+        private void get_processes_btn_Click(object sender, EventArgs e) {
+            try {
                 MemoryHelper.Connect(ip_box.Text);
 
                 this.processes_comboBox.Items.Clear();
                 ProcessList pl = MemoryHelper.GetProcessList();
-                foreach (Process process in pl.processes)
-                {
+                foreach (Process process in pl.processes) {
                     this.processes_comboBox.Items.Add(process.name);
                 }
                 this.processes_comboBox.SelectedIndex = 0;
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 MessageBox.Show(exception.Message, exception.Source, MessageBoxButtons.OK, MessageBoxIcon.Hand);
             }
         }
 
-        private void send_pay_load(string IP, string payloadPath, int port)
-        {
+        private void send_pay_load(string IP, string payloadPath, int port) {
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             socket.Connect(new IPEndPoint(IPAddress.Parse(IP), port));
@@ -989,22 +882,22 @@
             socket.Close();
         }
 
-        private void send_payload_btn_Click(object sender, EventArgs e)
-        {
-            try
-            {
+        private void send_payload_btn_Click(object sender, EventArgs e) {
+            try {
                 string patch_path = Application.StartupPath;
-                switch (version_list.SelectedIndex)
-                {
+                switch (version_list.SelectedIndex) {
                     case VERSION_LIST_702:
                         patch_path += @"\payloads\7.02\";
                         break;
+
                     case VERSION_LIST_672:
                         patch_path += @"\payloads\6.72\";
                         break;
+
                     case VERSION_LIST_505:
                         patch_path += @"\payloads\5.05\";
                         break;
+
                     default:
                         throw new System.ArgumentException("Unknown version.");
                 }
@@ -1014,18 +907,15 @@
                 this.msg.ForeColor = Color.Green;
                 this.msg.Text = "ps4debug.bin injected successfully!";
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 MessageBox.Show(exception.Message, exception.Source, MessageBoxButtons.OK, MessageBoxIcon.Hand);
             }
         }
 
-        private void InitCompareTypeListOfFirstScan()
-        {
+        private void InitCompareTypeListOfFirstScan() {
             string selected_type = (string)compareTypeList.SelectedItem;
             compareTypeList.Items.Clear();
-            switch (MemoryHelper.GetValueTypeByString((string)valueTypeList.SelectedItem))
-            {
+            switch (MemoryHelper.GetValueTypeByString((string)valueTypeList.SelectedItem)) {
                 case ValueType.ULONG_TYPE:
                 case ValueType.UINT_TYPE:
                 case ValueType.USHORT_TYPE:
@@ -1033,17 +923,20 @@
                     hex_box.Enabled = true;
                     compareTypeList.Items.AddRange(SEARCH_BY_BYTES_FIRST);
                     break;
+
                 case ValueType.DOUBLE_TYPE:
                 case ValueType.FLOAT_TYPE:
                     hex_box.Enabled = true;
                     compareTypeList.Items.AddRange(SEARCH_BY_FLOAT_FIRST);
                     break;
+
                 case ValueType.HEX_TYPE:
                 case ValueType.STRING_TYPE:
                     hex_box.Enabled = false;
                     hex_box.Checked = false;
                     compareTypeList.Items.AddRange(SEARCH_BY_HEX);
                     break;
+
                 default:
                     throw new Exception("GetStringOfValueType!!!");
             }
@@ -1051,10 +944,8 @@
             int list_idx = 0;
             int list_count = compareTypeList.Items.Count;
 
-            for (; list_idx < list_count; ++list_idx)
-            {
-                if ((string)compareTypeList.Items[list_idx] == selected_type)
-                {
+            for (; list_idx < list_count; ++list_idx) {
+                if ((string)compareTypeList.Items[list_idx] == selected_type) {
                     break;
                 }
             }
@@ -1062,26 +953,27 @@
             compareTypeList.SelectedIndex = list_idx == list_count ? 0 : list_idx;
         }
 
-        private void InitCompareTypeListOfNextScan()
-        {
+        private void InitCompareTypeListOfNextScan() {
             string selected_type = (string)compareTypeList.SelectedItem;
             compareTypeList.Items.Clear();
-            switch (MemoryHelper.GetValueTypeByString((string)valueTypeList.SelectedItem))
-            {
+            switch (MemoryHelper.GetValueTypeByString((string)valueTypeList.SelectedItem)) {
                 case ValueType.ULONG_TYPE:
                 case ValueType.UINT_TYPE:
                 case ValueType.USHORT_TYPE:
                 case ValueType.BYTE_TYPE:
                     compareTypeList.Items.AddRange(SEARCH_BY_BYTES_NEXT);
                     break;
+
                 case ValueType.DOUBLE_TYPE:
                 case ValueType.FLOAT_TYPE:
                     compareTypeList.Items.AddRange(SEARCH_BY_FLOAT_NEXT);
                     break;
+
                 case ValueType.HEX_TYPE:
                 case ValueType.STRING_TYPE:
                     compareTypeList.Items.AddRange(SEARCH_BY_HEX);
                     break;
+
                 default:
                     throw new Exception("GetStringOfValueType!!!");
             }
@@ -1089,10 +981,8 @@
             int list_idx = 0;
             int list_count = compareTypeList.Items.Count;
 
-            for (; list_idx < list_count; ++list_idx)
-            {
-                if ((string)compareTypeList.Items[list_idx] == selected_type)
-                {
+            for (; list_idx < list_count; ++list_idx) {
+                if ((string)compareTypeList.Items[list_idx] == selected_type) {
                     break;
                 }
             }
@@ -1100,22 +990,18 @@
             compareTypeList.SelectedIndex = list_idx == list_count ? 0 : list_idx;
         }
 
-        private void valueTypeList_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        private void valueTypeList_SelectedIndexChanged(object sender, EventArgs e) {
             InitCompareTypeListOfFirstScan();
         }
 
-        private void compareList_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if ((string)compareTypeList.SelectedItem == CONSTANT.BETWEEN_VALUE)
-            {
+        private void compareList_SelectedIndexChanged(object sender, EventArgs e) {
+            if ((string)compareTypeList.SelectedItem == CONSTANT.BETWEEN_VALUE) {
                 value_1_box.Visible = true;
                 value_label.Visible = true;
                 and_label.Visible = true;
                 value_box.Width = 102;
             }
-            else
-            {
+            else {
                 value_1_box.Visible = false;
                 value_label.Visible = false;
                 and_label.Visible = false;
@@ -1123,103 +1009,86 @@
             }
         }
 
-        private void new_scan_worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
+        private void new_scan_worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             new_scan_btn.Text = CONSTANT.NEW_SCAN;
             InitCompareTypeListOfNextScan();
-            if (e.Error != null)
-            {
+            if (e.Error != null) {
                 msg.Text = e.Error.Message;
             }
             setButtons(true);
         }
 
-        private void update_result_list_worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
+        private void update_result_list_worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             refresh_btn.Text = CONSTANT.REFRESH;
-            if (e.Error != null)
-            {
+            if (e.Error != null) {
                 msg.Text = e.Error.Message;
             }
             setButtons(true);
         }
 
-        private void next_scan_worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
+        private void next_scan_worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             next_scan_btn.Text = CONSTANT.NEXT_SCAN;
-            if (e.Error != null)
-            {
+            if (e.Error != null) {
                 msg.Text = e.Error.Message;
             }
             setButtons(true);
         }
 
-        private void result_list_view_add_to_cheat_list_Click(object sender, EventArgs e)
-        {
+        private void result_list_view_add_to_cheat_list_Click(object sender, EventArgs e) {
             if (result_list_view.SelectedItems == null)
                 return;
 
             ListView.SelectedListViewItemCollection items = result_list_view.SelectedItems;
-            for (int i = 0; i < items.Count; ++i)
-            {
+            for (int i = 0; i < items.Count; ++i) {
                 add_to_cheat_list(items[i]);
             }
         }
 
-        private void cheat_list_item_active_Click(object sender, EventArgs e)
-        {
+        private void cheat_list_item_active_Click(object sender, EventArgs e) {
             if (cheat_list_view.SelectedRows == null)
                 return;
 
             DataGridViewSelectedRowCollection items = cheat_list_view.SelectedRows;
-            for (int i = 0; i < items.Count; ++i)
-            {
+            for (int i = 0; i < items.Count; ++i) {
                 Cheat cheat = cheatList[items[i].Index];
 
                 cheat.GetDestination().SetRuntime(cheat.GetSource());
             }
         }
 
-        private void cheat_list_item_delete_Click(object sender, EventArgs e)
-        {
+        private void cheat_list_item_delete_Click(object sender, EventArgs e) {
             if (cheat_list_view.SelectedRows == null)
                 return;
 
             DataGridViewSelectedRowCollection items = cheat_list_view.SelectedRows;
-            for (int i = 0; i < items.Count; ++i)
-            {
+            for (int i = 0; i < items.Count; ++i) {
                 cheat_list_view.Rows.Remove(items[i]);
             }
         }
 
-        private void cheat_list_item_lock_Click(object sender, EventArgs e)
-        {
+        private void cheat_list_item_lock_Click(object sender, EventArgs e) {
             if (cheat_list_view.SelectedRows == null)
                 return;
 
             DataGridViewSelectedRowCollection items = cheat_list_view.SelectedRows;
-            for (int i = 0; i < items.Count; ++i)
-            {
+            for (int i = 0; i < items.Count; ++i) {
                 cheatList[items[i].Index].Lock = true;
                 items[i].Cells[CHEAT_LIST_LOCK].Value = true;
             }
         }
 
-        private void cheat_list_time_unlock_Click(object sender, EventArgs e)
-        {
+        private void cheat_list_time_unlock_Click(object sender, EventArgs e) {
             if (cheat_list_view.SelectedRows == null)
                 return;
 
             DataGridViewSelectedRowCollection items = cheat_list_view.SelectedRows;
-            for (int i = 0; i < items.Count; ++i)
-            {
+            for (int i = 0; i < items.Count; ++i) {
                 cheatList[items[i].Index].Lock = false;
                 items[i].Cells[CHEAT_LIST_LOCK].Value = false;
             }
         }
 
-        private void cheat_list_item_hex_view_Click(object sender, EventArgs e)
-        {
+        private void cheat_list_item_hex_view_Click(object sender, EventArgs e) {
             if (cheat_list_view.SelectedRows == null)
                 return;
 
@@ -1231,8 +1100,7 @@
             ulong address = ulong.Parse((string)items[0].Cells[CHEAT_LIST_ADDRESS].Value, NumberStyles.HexNumber);
             int sectionID = processManager.MappedSectionList.GetMappedSectionID(address);
 
-            if (sectionID >= 0)
-            {
+            if (sectionID >= 0) {
                 int offset = 0;
 
                 MappedSection section = processManager.MappedSectionList[sectionID];
@@ -1243,8 +1111,7 @@
             }
         }
 
-        private void cheat_list_item_find_pointer_Click(object sender, EventArgs e)
-        {
+        private void cheat_list_item_find_pointer_Click(object sender, EventArgs e) {
             if (cheat_list_view.SelectedRows == null)
                 return;
 
@@ -1253,24 +1120,19 @@
 
             DataGridViewSelectedRowCollection items = cheat_list_view.SelectedRows;
 
-            try
-            {
+            try {
                 ulong address = ulong.Parse((string)items[0].Cells[CHEAT_LIST_ADDRESS].Value, NumberStyles.HexNumber);
                 string type = (string)items[0].Cells[CHEAT_LIST_TYPE].Value;
 
                 PointerFinder pointerFinder = new PointerFinder(this, address, type, processManager, cheat_list_view);
                 pointerFinder.Show();
             }
-            catch
-            {
-
+            catch {
             }
         }
 
-        private void version_list_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            switch (version_list.SelectedIndex)
-            {
+        private void version_list_SelectedIndexChanged(object sender, EventArgs e) {
+            switch (version_list.SelectedIndex) {
                 case VERSION_LIST_702:
                     Util.Version = 702;
                     break;
@@ -1286,4 +1148,3 @@
         }
     }
 }
-
