@@ -2,7 +2,7 @@
 using System.Windows.Forms;
 
 namespace PS4_Cheater {
-    class Config {
+    public class Config {
         public static string fileName = System.IO.Path.GetFileName(Application.ExecutablePath);
         public static bool addSetting(string key, string value) {
             try {

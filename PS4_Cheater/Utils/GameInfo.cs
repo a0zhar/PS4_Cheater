@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace PS4_Cheater {
-    class GameInfo {
+    public class GameInfo {
 
         //
         // All 5 of the following variables and their assigned value,
