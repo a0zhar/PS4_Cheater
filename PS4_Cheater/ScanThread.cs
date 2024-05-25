@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -6,11 +6,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PS4_Cheater
-{
-    class PeekThread
-    {
+namespace PS4_Cheater {
+
+    internal class PeekThread {
         private ProcessManager processManager;
+
         //private BackgroundWorker worker;
         private List<byte[]> buffer_queue;
 
@@ -20,8 +20,7 @@ namespace PS4_Cheater
         private int productor_idx = 0;
 
         public PeekThread(ProcessManager processManager, List<byte[]> bufferQueue,
-            Semaphore consumerMutex, Semaphore producerMutex)
-        {
+            Semaphore consumerMutex, Semaphore producerMutex) {
             this.processManager = processManager;
             this.buffer_queue = bufferQueue;
             this.consumer_mutex = consumerMutex;
@@ -29,14 +28,11 @@ namespace PS4_Cheater
             this.productor_idx = 0;
         }
 
-        public void Peek()
-        {
-            for (int section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx)
-            {
+        public void Peek() {
+            for (int section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx) {
                 MappedSection mappedSection = processManager.MappedSectionList[section_idx];
 
-                if (!mappedSection.Check)
-                {
+                if (!mappedSection.Check) {
                     mappedSection.ResultList = null;
                     continue;
                 }
@@ -44,17 +40,14 @@ namespace PS4_Cheater
                 ulong address = mappedSection.Start;
                 int length = mappedSection.Length;
 
-                while (length != 0)
-                {
+                while (length != 0) {
                     int cur_length = CONSTANT.PEEK_BUFFER_LENGTH;
 
-                    if (cur_length > length)
-                    {
+                    if (cur_length > length) {
                         cur_length = length;
                         length = 0;
                     }
-                    else
-                    {
+                    else {
                         length -= cur_length;
                     }
 
@@ -71,8 +64,7 @@ namespace PS4_Cheater
         }
     }
 
-    class ComparerThread
-    {
+    internal class ComparerThread {
         private ProcessManager processManager;
 
         private MemoryHelper memoryHelper;
@@ -91,8 +83,7 @@ namespace PS4_Cheater
         private int consumer_idx = 0;
 
         public ComparerThread(ProcessManager processManager, MemoryHelper memoryHelper, List<byte[]> bufferQueue,
-            string value_0, string value_1, BackgroundWorker worker, Semaphore consumerMutex, Semaphore producerMutex, Mutex workerMutex)
-        {
+            string value_0, string value_1, BackgroundWorker worker, Semaphore consumerMutex, Semaphore producerMutex, Mutex workerMutex) {
             this.processManager = processManager;
             this.memoryHelper = memoryHelper;
             this.buffer_queue = bufferQueue;
@@ -106,18 +97,15 @@ namespace PS4_Cheater
             this.worker_mutex = workerMutex;
         }
 
-        public void ResultListOfNewScan()
-        {
+        public void ResultListOfNewScan() {
             long processed_memory_len = 0;
             ulong total_memory_size = processManager.MappedSectionList.TotalMemorySize + 1;
 
-            for (int section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx)
-            {
+            for (int section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx) {
                 if (worker.CancellationPending) break;
                 MappedSection mappedSection = processManager.MappedSectionList[section_idx];
 
-                if (!mappedSection.Check)
-                {
+                if (!mappedSection.Check) {
                     mappedSection.ResultList = null;
                     continue;
                 }
@@ -128,17 +116,14 @@ namespace PS4_Cheater
                 uint base_address_offset = 0;
                 int length = mappedSection.Length;
 
-                while (length != 0)
-                {
+                while (length != 0) {
                     int cur_length = CONSTANT.PEEK_BUFFER_LENGTH;
 
-                    if (cur_length > length)
-                    {
+                    if (cur_length > length) {
                         cur_length = length;
                         length = 0;
                     }
-                    else
-                    {
+                    else {
                         length -= cur_length;
                     }
 
@@ -152,13 +137,10 @@ namespace PS4_Cheater
                     byte[] buffer = buffer_queue[consumer_idx];
 
                     Byte[] new_value = new byte[element_length];
-                    if (default_value_0.Length == 0)
-                    {
-                        for (int i = 0; i + element_length < buffer.LongLength; i += element_alignment)
-                        {
+                    if (default_value_0.Length == 0) {
+                        for (int i = 0; i + element_length < buffer.LongLength; i += element_alignment) {
                             Buffer.BlockCopy(buffer, i, new_value, 0, element_length);
-                            if (memoryHelper.Comparer(default_value_0, default_value_1, null, new_value))
-                            {
+                            if (memoryHelper.Comparer(default_value_0, default_value_1, null, new_value)) {
                                 new_result_list.Add((uint)i + base_address_offset, new_value);
                             }
                         }
@@ -177,18 +159,15 @@ namespace PS4_Cheater
             }
         }
 
-        public void ResultListOfNextScan()
-        {
+        public void ResultListOfNextScan() {
             long processed_memory_len = 0;
             ulong total_memory_size = processManager.MappedSectionList.TotalMemorySize + 1;
 
-            for (int section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx)
-            {
+            for (int section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx) {
                 if (worker.CancellationPending) break;
                 MappedSection mappedSection = processManager.MappedSectionList[section_idx];
 
-                if (!mappedSection.Check)
-                {
+                if (!mappedSection.Check) {
                     mappedSection.ResultList = null;
                     continue;
                 }
@@ -202,17 +181,14 @@ namespace PS4_Cheater
                 ResultList old_result_list = mappedSection.ResultList;
                 old_result_list.Begin();
 
-                while (length != 0)
-                {
+                while (length != 0) {
                     int cur_length = CONSTANT.PEEK_BUFFER_LENGTH;
 
-                    if (cur_length > length)
-                    {
+                    if (cur_length > length) {
                         cur_length = length;
                         length = 0;
                     }
-                    else
-                    {
+                    else {
                         length -= cur_length;
                     }
 
@@ -227,10 +203,8 @@ namespace PS4_Cheater
                     int buffer_len = buffer.Length;
                     Byte[] new_value = new byte[element_length];
 
-                    if (default_value_0.Length == 0)
-                    {
-                        for (; !old_result_list.End(); old_result_list.Next())
-                        {
+                    if (default_value_0.Length == 0) {
+                        for (; !old_result_list.End(); old_result_list.Next()) {
                             uint address_offset = 0;
                             Byte[] old_value = null;
                             old_result_list.Get(ref address_offset, ref old_value);
@@ -239,8 +213,7 @@ namespace PS4_Cheater
                                 break;
 
                             Buffer.BlockCopy(buffer, (int)(address_offset - base_address_offset), new_value, 0, length);
-                            if (memoryHelper.Comparer(default_value_0, default_value_1, old_value, new_value))
-                            {
+                            if (memoryHelper.Comparer(default_value_0, default_value_1, old_value, new_value)) {
                                 new_result_list.Add(address_offset, new_value);
                             }
                         }
