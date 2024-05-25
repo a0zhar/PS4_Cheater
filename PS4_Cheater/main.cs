@@ -9,13 +9,11 @@ namespace PS4_Cheater {
     using System.IO;
     using System.Net;
     using System.Net.Sockets;
-    using System.Runtime.InteropServices;
-    using System.Windows.Forms;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Windows.Forms;
 
-    public partial class main : Form {
+    public partial class Main : Form {
         private ProcessManager processManager = new ProcessManager();
         private MemoryHelper memoryHelper = new MemoryHelper(true, 0);
         private CheatList cheatList = new CheatList();
@@ -94,7 +92,7 @@ namespace PS4_Cheater {
             CONSTANT.EXACT_VALUE,
         };
 
-        public main() {
+        public Main() {
             this.InitializeComponent();
         }
 
@@ -273,17 +271,19 @@ namespace PS4_Cheater {
                         return;
                     }
 
-                    memoryHelper.InitMemoryHandler((string)valueTypeList.SelectedItem,
-                        (string)compareTypeList.SelectedItem, alignment_box.Checked, value_box.Text.Length);
+                    memoryHelper.InitMemoryHandler(
+                        (string)valueTypeList.SelectedItem,
+                        (string)compareTypeList.SelectedItem,
+                        alignment_box.Checked,
+                        value_box.Text.Length
+                    );
 
                     setButtons(false);
                     new_scan_btn.Enabled = true;
                     valueTypeList.Enabled = false;
                     alignment_box.Enabled = false;
-                    //section_list_box.lo = false;
 
                     new_scan_worker.RunWorkerAsync();
-
                     new_scan_btn.Text = CONSTANT.STOP;
                 }
                 else if (new_scan_btn.Text == CONSTANT.NEW_SCAN) {
@@ -394,6 +394,7 @@ namespace PS4_Cheater {
             else {
                 consumer = new Thread(comparer_thread.ResultListOfNextScan);
             }
+
             consumer.Start();
 
             scan_wait_mutex.WaitOne();
@@ -416,8 +417,17 @@ namespace PS4_Cheater {
             int num_threads = MemoryHelper.num_threads;
             Task[] readTasks = new Task[num_threads];
 
-            for (int i = 0; i < num_threads; i++)
-                readTasks[i] = new Task(() => next_scan_thread(value_0, value_1, thread_id++, num_threads, ref processed_memory_len, total_memory_size));
+            for (int i = 0; i < num_threads; i++) {
+                readTasks[i] = new Task(() =>
+                next_scan_thread(
+                    value_0,
+                    value_1,
+                    thread_id++,
+                    num_threads,
+                    ref processed_memory_len,
+                    total_memory_size
+                ));
+            }
 
             foreach (var readTask in readTasks)
                 readTask.Start();
@@ -438,7 +448,7 @@ namespace PS4_Cheater {
                 MappedSection mappedSection = processManager.MappedSectionList[section_idx];
                 mappedSection.UpdateResultList(processManager, memoryHelper, value_0, value_1, hex_box.Checked, false, thread_id);
                 if (mappedSection.Check) processed_memory_len += mappedSection.Length;
-                next_scan_worker.ReportProgress((int)(((float)processed_memory_len / total_memory_size) * 80));
+                next_scan_worker.ReportProgress((int)((float)processed_memory_len / total_memory_size * 80));
             }
         }
 
@@ -453,8 +463,17 @@ namespace PS4_Cheater {
             int num_threads = MemoryHelper.num_threads;
             Task[] readTasks = new Task[num_threads];
 
-            for (int i = 0; i < num_threads; i++)
-                readTasks[i] = new Task(() => new_scan_thread(value_0, value_1, thread_id++, num_threads, ref processed_memory_len, total_memory_size));
+            for (int i = 0; i < num_threads; i++) {
+                readTasks[i] = new Task(() =>
+                new_scan_thread(
+                    value_0,
+                    value_1,
+                    thread_id++,
+                    num_threads,
+                    ref processed_memory_len,
+                    total_memory_size
+                ));
+            }
 
             foreach (var readTask in readTasks)
                 readTask.Start();
@@ -474,7 +493,7 @@ namespace PS4_Cheater {
                 MappedSection mappedSection = processManager.MappedSectionList[section_idx];
                 mappedSection.UpdateResultList(processManager, memoryHelper, value_0, value_1, hex_box.Checked, true, thread_id);
                 if (mappedSection.Check) processed_memory_len += mappedSection.Length;
-                new_scan_worker.ReportProgress((int)(((float)processed_memory_len / total_memory_size) * 80));
+                new_scan_worker.ReportProgress((int)((float)processed_memory_len / total_memory_size * 80));
             }
         }
 
@@ -483,15 +502,16 @@ namespace PS4_Cheater {
         }
 
         private void new_scan_worker_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+
             if (e.ProgressPercentage == 0) {
                 msg.Text = "Peeking memory...";
             }
 
-            if (e.ProgressPercentage == 80) {
+            else if (e.ProgressPercentage == 80) {
                 msg.Text = "Analysing memory...";
             }
 
-            if (e.ProgressPercentage == 100) {
+            else if (e.ProgressPercentage == 100) {
                 if (e.UserState is WorkerReturn) {
                     update_result_list_view_ui((WorkerReturn)e.UserState);
                 }
@@ -535,8 +555,12 @@ namespace PS4_Cheater {
             if (result_list_view.SelectedItems.Count == 1) {
                 ListView.SelectedListViewItemCollection items = result_list_view.SelectedItems;
 
-                ulong address = ulong.Parse(result_list_view.SelectedItems[0].
-                    SubItems[RESULT_LIST_ADDRESS].Text, NumberStyles.HexNumber);
+                ulong address = ulong.Parse(
+                    result_list_view.SelectedItems[0].
+                    SubItems[RESULT_LIST_ADDRESS].Text,
+                    NumberStyles.HexNumber
+                );
+                
                 int sectionID = processManager.MappedSectionList.GetMappedSectionID(address);
 
                 if (sectionID >= 0) {
@@ -553,12 +577,13 @@ namespace PS4_Cheater {
 
         private void dump_item_Click(object sender, EventArgs e) {
             if (result_list_view.SelectedItems.Count == 1) {
-                ulong address = ulong.Parse(result_list_view.SelectedItems[0].
-                    SubItems[RESULT_LIST_ADDRESS].Text, NumberStyles.HexNumber);
+                ulong address = ulong.Parse(
+                    result_list_view.SelectedItems[0].SubItems[RESULT_LIST_ADDRESS].Text, 
+                    NumberStyles.HexNumber
+                );
 
-                int sectionID = processManager.MappedSectionList.GetMappedSectionID(address);
-
-                dump_dialog(sectionID);
+                // TODO: Comment this
+                dump_dialog(processManager.MappedSectionList.GetMappedSectionID(address));
             }
         }
 
@@ -618,7 +643,13 @@ namespace PS4_Cheater {
                 DataCheatOperator dataCheatOperator = new DataCheatOperator(data, valueType, processManager);
                 AddressCheatOperator addressCheatOperator = new AddressCheatOperator(address, processManager);
 
-                DataCheat dataCheat = new DataCheat(dataCheatOperator, addressCheatOperator, lock_, description, processManager);
+                DataCheat dataCheat = new DataCheat(
+                    dataCheatOperator, 
+                    addressCheatOperator,
+                    lock_, 
+                    description,
+                    processManager
+                );
                 add_new_row_to_cheat_list_view(dataCheat);
                 cheatList.Add(dataCheat);
             }
@@ -647,15 +678,24 @@ namespace PS4_Cheater {
                 List<OffsetCheatOperator> offsetOperators = new List<OffsetCheatOperator>();
 
                 for (int i = 0; i < offset_list.Count; ++i) {
-                    OffsetCheatOperator offsetOperator = new OffsetCheatOperator(offset_list[i],
-                        ValueType.ULONG_TYPE, processManager);
+                    OffsetCheatOperator offsetOperator = new OffsetCheatOperator(
+                        offset_list[i],
+                        ValueType.ULONG_TYPE, 
+                        processManager
+                    );
+                    
                     offsetOperators.Add(offsetOperator);
                 }
 
                 SimplePointerCheatOperator destOperator = new SimplePointerCheatOperator(addressCheatOperator, offsetOperators, valueType, processManager);
 
-                SimplePointerCheat simplePointerCheat = new SimplePointerCheat(sourceOperator, destOperator,
-                    lock_, description, processManager);
+                SimplePointerCheat simplePointerCheat = new SimplePointerCheat(
+                    sourceOperator,
+                    destOperator,
+                    lock_, 
+                    description,
+                    processManager
+                    );
 
                 add_new_row_to_cheat_list_view(simplePointerCheat);
                 cheatList.Add(simplePointerCheat);
@@ -701,8 +741,8 @@ namespace PS4_Cheater {
         }
 
         private void cheat_list_view_CellClick(object sender, DataGridViewCellEventArgs e) {
-            if (e.RowIndex < 0) return;
-            if (e.ColumnIndex < 0) return;
+            if (e.RowIndex < 0 || e.ColumnIndex < 0)
+                return;
 
             DataGridViewRow edited_row = cheat_list_view.Rows[e.RowIndex];
             object edited_col = null;
@@ -749,8 +789,7 @@ namespace PS4_Cheater {
 
             if (!newAddress.Pointer) {
                 CreateNewDataCheat(address, value_type, value, lock_, description);
-            }
-            else {
+            } else {
                 new_pointer_cheat(address, newAddress.OffsetList, value_type, value, lock_, description);
             }
         }
@@ -886,23 +925,20 @@ namespace PS4_Cheater {
             try {
                 string patch_path = Application.StartupPath;
                 switch (version_list.SelectedIndex) {
-                    case VERSION_LIST_702:
-                        patch_path += @"\payloads\7.02\";
-                        break;
-
-                    case VERSION_LIST_672:
-                        patch_path += @"\payloads\6.72\";
-                        break;
-
-                    case VERSION_LIST_505:
-                        patch_path += @"\payloads\5.05\";
-                        break;
-
+                    case VERSION_LIST_702:patch_path += @"\payloads\7.02\";break;
+                    case VERSION_LIST_672:patch_path += @"\payloads\6.72\";break;
+                    case VERSION_LIST_505:patch_path += @"\payloads\5.05\";break;
                     default:
                         throw new System.ArgumentException("Unknown version.");
-                }
+                };
 
-                this.send_pay_load(this.ip_box.Text, patch_path + @"ps4debug.bin", Convert.ToInt32(this.port_box.Text));
+                // Send the PS4Debug Payload to the PS4 System
+                this.send_pay_load(
+                    this.ip_box.Text, 
+                    patch_path + @"ps4debug.bin", 
+                    Convert.ToInt32(this.port_box.Text)
+                );
+                
                 Thread.Sleep(1000);
                 this.msg.ForeColor = Color.Green;
                 this.msg.Text = "ps4debug.bin injected successfully!";
@@ -1089,11 +1125,10 @@ namespace PS4_Cheater {
         }
 
         private void cheat_list_item_hex_view_Click(object sender, EventArgs e) {
-            if (cheat_list_view.SelectedRows == null)
+            if (cheat_list_view.SelectedRows == null ||
+                cheat_list_view.SelectedRows.Count != 1) {
                 return;
-
-            if (cheat_list_view.SelectedRows.Count != 1)
-                return;
+            }
 
             DataGridViewSelectedRowCollection items = cheat_list_view.SelectedRows;
 
@@ -1110,7 +1145,6 @@ namespace PS4_Cheater {
                 hexEdit.Show(this);
             }
         }
-
         private void cheat_list_item_find_pointer_Click(object sender, EventArgs e) {
             if (cheat_list_view.SelectedRows == null)
                 return;
@@ -1133,17 +1167,9 @@ namespace PS4_Cheater {
 
         private void version_list_SelectedIndexChanged(object sender, EventArgs e) {
             switch (version_list.SelectedIndex) {
-                case VERSION_LIST_702:
-                    Util.Version = 702;
-                    break;
-
-                case VERSION_LIST_672:
-                    Util.Version = 672;
-                    break;
-
-                case VERSION_LIST_505:
-                    Util.Version = 505;
-                    break;
+                case VERSION_LIST_702: Util.Version = 702; break;
+                case VERSION_LIST_672: Util.Version = 672; break;
+                case VERSION_LIST_505: Util.Version = 505; break;
             }
         }
     }
